@@ -1,6 +1,12 @@
 import feedparser
+import sqlite3
+
+conn = sqlite3.connect('ztis.db')
+cur = conn.cursor()
+
 
 class RSSSource:
+
     def __init__(self, name, url):
         self.name = name
         self.url = url
@@ -23,14 +29,24 @@ if __name__ == '__main__':
     for a in rssArray:
         newsFeed = feedparser.parse(a.url)
         a.add_news_list(newsFeed)
-#    for rss in rssArray:
-#        rss.add_news_list(feedparser.parse(rss.url)
-#    for rss in rssArray:
-#        print(rss)
-#        print(rss.newsList.size)
-#
-#    print(entry.title)
-    for a in rssArray:
-        print(a)
-        print(a.newsList)
-        print("--------------------------------------------")
+        for item in newsFeed.entries:
+            try:
+                title2 = item['title']
+            except KeyError:
+                title2 = 'default'
+            try:
+                publication_date2 = item['published']
+            except KeyError:
+                publication_date2 = 'default'
+            try:
+                author2 = item['author']
+            except KeyError:
+                author2 = 'default'
+            try:
+                summary2 = item['summary']
+            except KeyError:
+                summary2 = 'default'
+
+
+            cur.execute("INSERT INTO ztis VALUES (?, ?, ?, ?)", (title2, summary2, publication_date2, author2))
+            conn.commit()
