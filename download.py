@@ -3,6 +3,7 @@ import sqlite3
 rssArray = []
 
 def create_table(cur):
+    print("Creating new ztis table")
     try:
         cur.execute("""CREATE TABLE ztis
                  (source, title, summary, publication_date, author)""")
@@ -10,6 +11,7 @@ def create_table(cur):
         pass
 
 def drop_table(cur):
+    print("Dropping ztis table with all data")
     try:
         cur.execute("DROP TABLE ztis")
     except:
@@ -31,6 +33,8 @@ def download_data():
         a.add_news_list(newsFeed)
 
 def save_data(conn, cur):
+    print("Saving data to ztis table...")
+    counter = 0
     for a in rssArray:
         for item in a.newsList.entries:
             source = a.name
@@ -51,7 +55,9 @@ def save_data(conn, cur):
             except KeyError:
                 summary = 'default'
             cur.execute("INSERT INTO ztis VALUES (?, ?, ?, ?, ?)", (source, title, summary, publication_date, author))
+            counter += 1
             conn.commit()
+    print("Correctly save %d feeds" % (counter))
 
 class RSSSource:
     def __init__(self, name, url):
