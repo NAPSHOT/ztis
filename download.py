@@ -5,8 +5,16 @@ rssArray = []
 def create_table(cur):
     print("Creating new ztis table")
     try:
-        cur.execute("""CREATE TABLE ztis
-                 (source, title, summary, publication_date, author)""")
+        cur.execute("""CREATE TABLE ztis (
+    id               INTEGER    PRIMARY KEY
+                                UNIQUE,
+    source           TEXT (600),
+    title            TEXT (200) UNIQUE,
+    summary          TEXT (600),
+    publication_date DATE,
+    author           TEXT (100)
+);
+""")
     except:
         pass
 
@@ -54,9 +62,10 @@ def save_data(conn, cur):
                 summary = item['summary']
             except KeyError:
                 summary = 'default'
-            cur.execute("INSERT INTO ztis VALUES (?, ?, ?, ?, ?)", (source, title, summary, publication_date, author))
+            cur.execute("INSERT OR IGNORE INTO ztis(source, title, summary, publication_date, author) VALUES (?,?,?,?,?)", (source, title, summary, publication_date, author))
             counter += 1
             conn.commit()
+            #, (source, title, summary, publication_date, author)
     print("Correctly save %d feeds" % (counter))
 
 class RSSSource:
