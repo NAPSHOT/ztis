@@ -17,6 +17,23 @@ def drop_table(cur):
     except:
         pass
 
+def delete_duplicates(conn, cur):
+    print("Deleting duplicates form ztis table")
+    try:
+        cur.execute("DELETE FROM ztis WHERE rowid NOT IN (SELECT MIN(rowid) FROM ztis GROUP BY title)")
+        conn.commit()
+        print("Duplicates correctly removed")
+    except:
+        pass
+
+def count_data(cur):
+    try:
+        cur.execute("SELECT COUNT(*) FROM ztis")
+        count = cur.fetchone()
+        print("There are %d rows in ztis table" % (count))
+    except:
+        pass
+
 def read_rsslist():
     with open("rsslist", "r") as file:
         while True:
@@ -73,9 +90,12 @@ class RSSSource:
 if __name__ == '__main__':
     conn = sqlite3.connect('ztis.db')
     cur = conn.cursor()
+    count_data(cur)
     read_rsslist()
     download_data()
 #    drop_table(cur)
 #    create_table(cur)
     save_data(conn, cur)
+    delete_duplicates(conn, cur)
+    count_data(cur)
     conn.close()
